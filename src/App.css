@@ -29,3 +29,19 @@
   display: flex;
   justify-content: space-between;
 }
+
+.grocery-list {
+  padding: 1em;
+  border: 1px solid lightgray;
+}
+.grocery-list > div {
+  display: flex;
+  align-items: center;
+}
+.grocery-list input[type='text'] {
+  border: none;
+  background: black;
+}
+.grocery-list > div.checked input {
+  text-decoration: line-through;
+}
