@@ -791,24 +791,6 @@
             "end":11
         }
     },
-    "pumpkin":{
-        "name":"Pumpkin",
-        "id":100,
-        "family":"Cucurbitaceae",
-        "order":"Cucurbitales",
-        "genus":"Cucurbita",
-        "nutritions":{
-            "calories":25,
-            "fat":0.3,
-            "sugar":3.3,
-            "carbohydrates":4.6,
-            "protein":1.1
-        },
-        "season":{
-            "start":9,
-            "end":11
-        }
-    },
     "japanese persimmon":{
         "name":"Japanese Persimmon",
         "id":101,

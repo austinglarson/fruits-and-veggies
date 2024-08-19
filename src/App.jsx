@@ -3,15 +3,82 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import fruitData from './data/fruits.json'
+import vegetablesData from './data/vegetables.json'
 import FoodList from './FoodList'
 import GroceryList from './GroceryList'
 import GroceryMarkup from './GroceryMarkup'
 
 function App() {
-  console.log('Render app')
-  //sendRecipeMessage()
-
+  //console.log('Render app')
+  const [food, setFood] = React.useState([]);
+  const [foodFilters, setFoodFilters] = React.useState({sort: '', isSeason: false, fruit: false, vegetable: false});
   const [isGroceryListHidden, setIsGroceryListHidden] = React.useState(true);
+
+  function getMonth(month) {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return monthNames[month - 1];
+  }
+  const currentMonth = new Date().getMonth()
+
+  React.useEffect(() => {
+    let foods = {};
+    for (let foodKey in fruitData) {
+      const foodItem = fruitData[foodKey];
+      foodItem['nameKey'] = foodKey;
+      foodItem['type'] = 'fruit';
+      foodItem['hidden'] = false;
+      foods[foodKey] = foodItem;
+    }
+    for (let foodKey in vegetablesData) {
+      const foodItem = vegetablesData[foodKey];
+      foodItem['nameKey'] = foodKey;
+      foodItem['type'] = 'vegetable';
+      foodItem['hidden'] = false;
+      foods[foodKey] = foodItem;
+    }
+
+    foods = Object.values(foods).sort((a, b) => a.name.localeCompare(b.name));
+    setFood(foods);
+  }, []);
+
+  React.useEffect(() => {
+		if (food.length > 0) {
+			setFood(prevFood => {
+        prevFood.sort((a, b) => {
+          if (foodFilters.sort === 'name') {
+            return a.name.localeCompare(b.name);
+          } else if (foodFilters.sort === 'protein') {
+            return b.nutritions[foodFilters.sort] - a.nutritions[foodFilters.sort];
+          } else {
+            return a.nutritions[foodFilters.sort] - b.nutritions[foodFilters.sort];
+          }
+        });
+
+        return prevFood.map(food => {
+          if (foodFilters.inSeason && (currentMonth < food.season.start || currentMonth >= food.season.end)) { // if not in season
+            return { ...food, hidden: true };
+          }
+          if (foodFilters.fruit && food.type !== 'fruit') {
+            return { ...food, hidden: true };
+          }
+          if (foodFilters.vegetable && food.type !== 'vegetable') {
+            return { ...food, hidden: true };
+          }
+          return { ...food, hidden: false };
+        })
+      });
+		}
+  }, [foodFilters]);
+
+  function updateFoodFilters(event) {
+		setFoodFilters(prevFoodFilters => {
+			const {name, value, type, checked} = event.target
+			return {
+				...prevFoodFilters,
+				[name]: type === 'checkbox' ? checked : value
+			}
+		})
+	}
 
   const inputRef = React.useRef(null);
   function toggleGroceryList(event) {
@@ -35,33 +102,28 @@ function App() {
       </header>
 
       <main>
-        {/* <GroceryList /> */}
-
-        <div id="filtersContainer">
-          <select>
-            <option value="name">Name</option>
-            <option value="calories">Calories</option>
-            <option value="sugar">Sugar</option>
-            <option value="protein">Protein</option>
-          </select>
-
-          <div>
-            <input type="checkbox" id="filterInSeason" name="inSeason" />
-            <label htmlFor="inSeason">In Season</label>
-          </div>
-          <div>
-            <input type="checkbox" id="filterFruits" name="fruits" />
-            <label htmlFor="fruits">Fruits</label>
-          </div>
-          <div>
-            <input type="checkbox" id="filterVeggies" name="veggies" />
-            <label htmlFor="veggies">Vegetables</label>
-          </div>
-        </div>
-
         <section>
-          <h2>Select your fruit:</h2>
-          <FoodList />
+          <h2>Select your items:</h2>
+
+          <div id="filtersContainer">
+            <select name="sort" onChange={updateFoodFilters}>
+              <option value="name">Name</option>
+              <option value="calories">Calories ↑</option>
+              <option value="sugar">Sugar ↑</option>
+              <option value="protein">Protein ↓</option>
+            </select>
+
+            <input type="checkbox" id="inSeasonCheckbox" name="inSeason" onChange={updateFoodFilters} />
+            <label htmlFor="inSeason">In Season</label>
+
+            <input type="checkbox" id="fruitCheckbox" name="fruit" onChange={updateFoodFilters} />
+            <label htmlFor="fruit">Fruit</label>
+
+            <input type="checkbox" id="vegetablesCheckbox" name="vegetable" onChange={updateFoodFilters} />
+            <label htmlFor="vegetable">Vegetables</label>
+          </div>
+
+          <FoodList food={food} getMonth={getMonth} />
         </section>
 
         <GroceryMarkup hidden={isGroceryListHidden} handleClick={toggleGroceryList} inputRef={inputRef} />

@@ -34,7 +34,6 @@ export default function GroceryMarkup(props) {
 
     function checkListItem(event) {
         // Check if event click was offset to the left of the li element for checkbox
-        console.log(event.nativeEvent.offsetX);
         if (!event.target.getAttribute('aria-checked') || event.nativeEvent.offsetX >= 0) return;
         event.target.setAttribute('aria-checked', (event.target.getAttribute('aria-checked') === 'true' ? 'false' : 'true'))
         localStorage.setItem('groceryList', JSON.stringify(event.target.parentElement.innerHTML));
@@ -65,7 +64,7 @@ export default function GroceryMarkup(props) {
                     <span>Grocery List</span>
                     <button className="close-dialog-btn" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><line x1="16" x2="16" y2="32"/><line y1="16" x2="32" y2="16"/></svg></button>
                 </div>
-                <ul id="groceryList" className="grocery-list" aria-label="editable markdown" contentEditable="true" role="textbox" 
+                <ul id="groceryList" className="grocery-list" aria-label="editable markdown" contentEditable="true" suppressContentEditableWarning="true" role="textbox" 
                 onKeyDown={preventEnterKeyDown} onKeyUp={updateGroceryMarkup} onClick={checkListItem} ref={props.inputRef}>{groceryList}</ul>
             </div>
         </div>
